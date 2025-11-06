@@ -1,0 +1,127 @@
+// AI 서버 URL (녹화/이미지 업로드용)
+const AI_SERVER_URL =
+    process.env.NEXT_PUBLIC_AI_SERVER_URL ||
+    "https://unto-dover-wayne-beds.trycloudflare.com";
+
+// 메인 서버 URL (인증 등 기타 API용)
+const MAIN_SERVER_URL =
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    "http://localhost:8000";
+
+export class ApiClient {
+    private baseUrl: string;
+
+    constructor(baseUrl: string) {
+        this.baseUrl = baseUrl;
+    }
+
+    private async request<T>(
+        endpoint: string,
+        options: RequestInit = {},
+        useAuth: boolean = false
+    ): Promise<T> {
+        // baseUrl과 endpoint 사이의 슬래시 정규화
+        const normalizedBaseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+        const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        const url = `${normalizedBaseUrl}${normalizedEndpoint}`;
+
+        const headers: Record<string, string> = {
+            ...(options.headers as Record<string, string>),
+        };
+
+        // Authorization 헤더 추가 (useAuth가 true일 때)
+        if (useAuth && typeof window !== "undefined") {
+            const token = localStorage.getItem("access_token");
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+        }
+
+        try {
+            console.log(`[API] ${options.method || 'GET'} ${url}`);
+            
+            const response = await fetch(url, {
+                ...options,
+                headers,
+            });
+
+            console.log(`[API] Response status: ${response.status}`);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`[API] Error response:`, errorText);
+                throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error(`[API] Request failed:`, error);
+            if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                throw new Error(`서버에 연결할 수 없습니다. 서버 URL을 확인해주세요: ${url}`);
+            }
+            throw error;
+        }
+    }
+
+    async get<T>(endpoint: string, options?: RequestInit, useAuth: boolean = false): Promise<T> {
+        return this.request<T>(endpoint, { ...options, method: "GET" }, useAuth);
+    }
+
+    async post<T>(
+        endpoint: string,
+        body?: any,
+        options?: RequestInit,
+        useAuth: boolean = false
+    ): Promise<T> {
+        return this.request<T>(endpoint, {
+            ...options,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: body ? JSON.stringify(body) : undefined,
+        }, useAuth);
+    }
+
+    async postFormData<T>(
+        endpoint: string,
+        formData: FormData,
+        options?: RequestInit,
+        useAuth: boolean = false
+    ): Promise<T> {
+        return this.request<T>(endpoint, {
+            ...options,
+            method: "POST",
+            body: formData,
+        }, useAuth);
+    }
+
+    async put<T>(
+        endpoint: string,
+        body?: any,
+        options?: RequestInit,
+        useAuth: boolean = false
+    ): Promise<T> {
+        return this.request<T>(endpoint, {
+            ...options,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                ...options?.headers,
+            },
+            body: body ? JSON.stringify(body) : undefined,
+        }, useAuth);
+    }
+
+    async delete<T>(endpoint: string, options?: RequestInit, useAuth: boolean = false): Promise<T> {
+        return this.request<T>(endpoint, { ...options, method: "DELETE" }, useAuth);
+    }
+}
+
+// AI 서버용 클라이언트 (/context/upload 등)
+export const aiApiClient = new ApiClient(AI_SERVER_URL);
+
+// 메인 서버용 클라이언트 (/auth/* 등)
+export const apiClient = new ApiClient(MAIN_SERVER_URL);
+

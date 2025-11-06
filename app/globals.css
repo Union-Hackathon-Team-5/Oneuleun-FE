@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+    --color-primary: #b6771d;
+    --color-error: #df454a;
+
+    --color-gray-900: #1a1a1b;
+    --color-gray-800: #343436;
+    --color-gray-700: #4e4f51;
+    --color-gray-600: #68696c;
+    --color-gray-500: #828387;
+    --color-gray-400: #9b9c9f;
+    --color-gray-300: #b4b5b7;
+    --color-gray-200: #cdcdcf;
+    --color-gray-100: #e6e6e7;
+    --color-gray-50: #eff0f2;
+    --color-gray-10: #f5f6f8;
+
+    --background: #ffffff;
+    --foreground: #171717;
+    --font-pretendard:
+        "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+        system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+        "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol", sans-serif;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-pretendard);
+
+    /* 커스텀 컬러 */
+    --color-primary: #b6771d;
+    --color-error: #df454a;
+
+    /* Gray Scale */
+    --color-gray-900: #1a1a1b;
+    --color-gray-800: #343436;
+    --color-gray-700: #4e4f51;
+    --color-gray-600: #68696c;
+    --color-gray-500: #828387;
+    --color-gray-400: #9b9c9f;
+    --color-gray-300: #b4b5b7;
+    --color-gray-200: #cdcdcf;
+    --color-gray-100: #e6e6e7;
+    --color-gray-50: #eff0f2;
+    --color-gray-10: #f5f6f8;
+}
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-pretendard);
+}
+
+/* 타이포그래피 시스템 */
+.text-title {
+    font-size: 36px;
+    font-weight: 600; /* Semibold */
+    line-height: 120%;
+}
+
+.text-title-small {
+    font-size: 24px;
+    font-weight: 600; /* Semibold */
+    line-height: 130%;
+}
+
+.text-body1 {
+    font-size: 18px;
+    font-weight: 600; /* Semibold */
+    line-height: 140%;
+}
+
+.text-body2 {
+    font-size: 16px;
+    font-weight: 600; /* Semibold */
+    line-height: 140%;
+}
+
+.text-body3 {
+    font-size: 16px;
+    font-weight: 400; /* Regular */
+    line-height: 140%;
+}
+
+.text-body4 {
+    font-size: 14px;
+    font-weight: 600; /* Semibold */
+    line-height: 140%;
+}
+
+.text-body5 {
+    font-size: 14px;
+    font-weight: 400; /* Regular */
+    line-height: 140%;
+}
+
+.text-caption {
+    font-size: 12px;
+    font-weight: 400; /* Regular */
+    line-height: 140%;
+}
