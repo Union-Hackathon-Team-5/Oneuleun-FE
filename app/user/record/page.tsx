@@ -452,10 +452,25 @@ export default function UserRecordPage() {
         // 녹화 시작
         try {
             console.log("[startRecording] MediaRecorder 생성 중...");
+            
+            // mp4 형식 지원 확인 (대부분의 브라우저는 webm만 지원)
+            let mimeType = "video/webm;codecs=vp9";
+            if (MediaRecorder.isTypeSupported("video/mp4")) {
+                mimeType = "video/mp4";
+            } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9")) {
+                mimeType = "video/webm;codecs=vp9";
+            } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp8")) {
+                mimeType = "video/webm;codecs=vp8";
+            } else {
+                mimeType = "video/webm";
+            }
+            
+            console.log(`[startRecording] 선택된 MIME 타입: ${mimeType}`);
+            
             const mediaRecorder = new MediaRecorder(currentStream, {
-                mimeType: "video/mp4;codecs=vp9",
+                mimeType: mimeType,
             });
-            console.log("[startRecording] MediaRecorder 생성 완료");
+            console.log(`[startRecording] MediaRecorder 생성 완료, 실제 타입: ${mediaRecorder.mimeType}`);
 
             const chunks: Blob[] = [];
 
@@ -466,8 +481,12 @@ export default function UserRecordPage() {
             };
 
             mediaRecorder.onstop = async () => {
-                const blob = new Blob(chunks, { type: "video/mp4" });
+                // MediaRecorder가 실제로 생성한 형식 사용
+                const actualMimeType = mediaRecorder.mimeType || "video/webm";
+                const blob = new Blob(chunks, { type: actualMimeType });
                 recordedBlobRef.current = blob;
+                
+                console.log(`[녹화 완료] 영상 Blob 생성: 크기=${blob.size} bytes, 실제 타입=${actualMimeType}`);
                 
                 // 녹화 중지 상태 업데이트
                 setIsRecording(false);
@@ -517,14 +536,18 @@ export default function UserRecordPage() {
                     // 3. /log API 호출 (영상 파일 + 분석 결과 전체)
                     // 분석 결과가 없어도 로그는 저장 (기본값 사용)
                     if (analysisResult) {
+                        console.log(`[녹화 완료] 영상 업로드 시작: 크기=${blob.size} bytes`);
                         await uploadLogToServer(blob, sessionId, analysisResult);
+                        console.log("[녹화 완료] 영상 업로드 완료");
+                    } else {
+                        console.warn("[녹화 완료] 분석 결과가 없어 영상 업로드를 건너뜁니다.");
                     }
 
                     // 4. 분석 완료 후 감정 선택 페이지로 이동
                     setSnapshot(null); // 스냅샷 해제
                     router.push("/user/emotion");
                 } catch (error) {
-                    console.error("업로드 실패:", error);
+                    console.error("[녹화 완료] 업로드 실패:", error);
                     // 에러가 발생해도 사용자 플로우는 계속 진행
                     setSnapshot(null);
                     router.push("/user/emotion");

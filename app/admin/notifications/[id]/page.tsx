@@ -33,7 +33,7 @@ export default function NotificationDetailPage() {
             return;
         }
 
-        // 로컬 스토리지에서 알림 정보 불러오기
+        // 먼저 로컬 스토리지에서 알림 정보 확인
         const loadNotification = () => {
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
@@ -41,19 +41,19 @@ export default function NotificationDetailPage() {
                     const notifications: Notification[] = JSON.parse(stored);
                     const found = notifications.find((n) => n.id === notificationId);
                     if (found) {
+                        // 알림이 있으면 기존 로직 사용
                         setNotification(found);
-                        // userName으로 senior 찾기
                         findSeniorId(found.userName);
-                    } else {
-                        router.push("/admin/notifications");
+                        return;
                     }
-                } else {
-                    router.push("/admin/notifications");
                 }
             } catch (error) {
                 console.error("알림 불러오기 실패:", error);
-                router.push("/admin/notifications");
             }
+
+            // 알림이 없으면 notificationId를 senior-id로 사용하여 로그 직접 가져오기
+            // (편지보러 가기 버튼에서 로그 ID를 전달한 경우)
+            fetchSeniorLogDirectly(notificationId);
         };
 
         const findSeniorId = async (userName: string) => {
@@ -79,6 +79,33 @@ export default function NotificationDetailPage() {
                 setSeniorLog(log);
             } catch (error) {
                 console.error("노인 기록 조회 실패:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const fetchSeniorLogDirectly = async (seniorId: number) => {
+            try {
+                const log = await logService.getSeniorLog(seniorId);
+                setSeniorLog(log);
+                // 로그에서 노인 이름 가져오기 (선택된 노인 정보에서)
+                const seniors = await authService.getCaregiverSeniors();
+                const senior = seniors.find((s) => s.id === seniorId);
+                if (senior) {
+                    setSeniorId(senior.id);
+                    // 알림 정보 생성 (로그 기반)
+                    setNotification({
+                        id: log.id || seniorId,
+                        userName: senior.name,
+                        title: `${senior.name}님의 영상 편지`,
+                        description: log.status_signal?.summary || "영상 편지가 도착했어요",
+                        isRead: false,
+                        timestamp: log.date ? new Date(log.date).getTime() : Date.now(),
+                    });
+                }
+            } catch (error) {
+                console.error("노인 기록 조회 실패:", error);
+                router.push("/admin/notifications");
             } finally {
                 setIsLoading(false);
             }

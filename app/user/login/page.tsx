@@ -128,7 +128,7 @@ export default function UserLoginPage() {
                 )}
 
                 {/* 코드 입력 박스 */}
-                <div className="flex justify-between gap-3 px-2">
+                <div className="flex justify-center gap-2 w-full">
                     {code.map((digit, index) => (
                         <input
                             key={index}
@@ -143,7 +143,7 @@ export default function UserLoginPage() {
                                 handleInputChange(index, e.target.value)
                             }
                             onKeyDown={(e) => handleKeyDown(index, e)}
-                            className="text-primary focus:ring-primary/20 h-[56px] flex-1 rounded-xl bg-gray-50 border border-gray-200 text-center text-2xl font-semibold shadow-sm transition-all outline-none focus:bg-white focus:border-primary focus:ring-2 focus:shadow-md"
+                            className="text-primary focus:ring-primary/20 h-[56px] w-[48px] max-w-[56px] rounded-xl bg-gray-50 border border-gray-200 text-center text-xl sm:text-2xl font-semibold shadow-sm transition-all outline-none focus:bg-white focus:border-primary focus:ring-2 focus:shadow-md"
                         />
                     ))}
                 </div>

@@ -642,7 +642,17 @@ export default function AdminDashboardPage() {
             {/* 편지 보러가기 버튼 */}
             <div className="px-4 pb-6 safe-area-bottom bg-primary">
                 <button
-                    onClick={() => router.push("/admin/notifications")}
+                    onClick={async () => {
+                        // 선택된 노인이 없으면 알림 목록으로 이동
+                        if (!selectedSenior) {
+                            router.push("/admin/notifications");
+                            return;
+                        }
+
+                        // 선택된 노인의 ID를 사용하여 상세 페이지로 이동
+                        // 상세 페이지에서 /log/{senior-id} API를 호출하여 최근 로그를 가져옴
+                        router.push(`/admin/notifications/${selectedSenior.id}`);
+                    }}
                     className="relative z-10 h-[56px] w-full rounded-xl bg-white text-base font-semibold text-primary shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                 >
                     편지보러가기

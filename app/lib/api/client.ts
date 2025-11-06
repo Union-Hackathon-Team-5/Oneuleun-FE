@@ -34,6 +34,9 @@ export class ApiClient {
             const token = localStorage.getItem("access_token");
             if (token) {
                 headers["Authorization"] = `Bearer ${token}`;
+                console.log(`[API] Authorization 헤더 추가됨: Bearer ${token.substring(0, 20)}...`);
+            } else {
+                console.warn(`[API] useAuth가 true이지만 토큰이 없습니다. endpoint: ${endpoint}`);
             }
         }
 

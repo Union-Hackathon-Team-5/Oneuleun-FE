@@ -14,12 +14,33 @@ export class LogService {
     ): Promise<LogResponse> {
         const formData = new FormData();
 
-        // request 데이터를 JSON 문자열로 변환하여 추가
-        formData.append("request", JSON.stringify(requestData));
+        // request 데이터를 JSON 문자열로 변환하여 Blob으로 추가 (application/json Content-Type 설정)
+        const jsonString = JSON.stringify(requestData);
+        const jsonBlob = new Blob([jsonString], { type: "application/json" });
+        formData.append("request", jsonBlob, "request.json");
+        console.log(`[LogService] request 데이터 (application/json):`, requestData);
 
-        // 파일이 있으면 추가
+        // 파일이 있으면 추가 (multipart/form-data)
         if (file) {
-            formData.append("file", file, file instanceof File ? file.name : `log-${Date.now()}.mp4`);
+            // 파일 이름과 MIME 타입을 mp4로 설정 (서버에서 mp4를 기대함)
+            const fileName = `log-${Date.now()}.mp4`;
+            const mimeType = "video/mp4";
+            
+            // Blob을 File 객체로 변환하여 명시적인 파일 이름과 MIME 타입 설정
+            if (file instanceof Blob && !(file instanceof File)) {
+                const videoFile = new File([file], fileName, { type: mimeType });
+                formData.append("file", videoFile, fileName);
+                console.log(`[LogService] 영상 파일 업로드 (multipart/form-data): ${fileName}, 크기: ${file.size} bytes, 원본 타입: ${file.type}, 업로드 타입: ${mimeType}`);
+            } else {
+                // File 객체인 경우도 mp4로 변환
+                const videoFile = file instanceof File 
+                    ? new File([file], fileName, { type: mimeType })
+                    : new File([file], fileName, { type: mimeType });
+                formData.append("file", videoFile, fileName);
+                console.log(`[LogService] 영상 파일 업로드 (multipart/form-data): ${fileName}, 크기: ${file.size} bytes, 원본 타입: ${file.type}, 업로드 타입: ${mimeType}`);
+            }
+        } else {
+            console.warn("[LogService] 파일이 없습니다. request만 전송합니다.");
         }
 
         // 인증 토큰이 필요하므로 useAuth: true 전달
