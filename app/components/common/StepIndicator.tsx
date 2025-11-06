@@ -29,7 +29,7 @@ export default function Wizard({ steps, currentStep }: WizardProps) {
                         className={`h-2 w-2 rounded-full transition-all duration-500 ${
                             index < currentStep
                                 ? "bg-primary" // 완료된 단계 (금색)
-                                : "bg-[#eff0f2]" // 대기 중인 단계 (회색)
+                                : "bg-gray-50" // 대기 중인 단계 (회색)
                         }`}
                     />
                 ))}

@@ -49,10 +49,10 @@ export default function AdminSignupPage() {
     return (
         <div className="flex min-h-screen flex-col bg-white">
             {/* 헤더 */}
-            <div className="flex h-[32px] items-center py-10">
+            <div className="flex h-[56px] items-center border-b border-gray-100 px-4 pt-2 bg-white">
                 <button
                     onClick={() => router.back()}
-                    className="flex h-8 w-8 items-center justify-center"
+                    className="flex h-10 w-10 items-center justify-center -ml-2 rounded-lg transition-colors hover:bg-gray-50 active:bg-gray-100"
                     aria-label="뒤로가기"
                 >
                     <svg
@@ -74,8 +74,8 @@ export default function AdminSignupPage() {
             </div>
 
             {/* 메인 콘텐츠 */}
-            <div className="flex-1 px-6 pt-11">
-                <h1 className="text-body1 mb-12 text-black">
+            <div className="flex-1 px-6 pt-8">
+                <h1 className="text-lg font-semibold mb-10 text-black leading-tight">
                     회원가입 정보를 입력해주세요
                 </h1>
 
@@ -88,7 +88,7 @@ export default function AdminSignupPage() {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             placeholder="아이디를 입력해주세요"
-                            className="text-body4 focus:border-primary focus:ring-primary h-[56px] w-full rounded-xl border border-[#dbdcde] px-4 text-black placeholder:text-gray-300 focus:ring-1 focus:outline-none"
+                            className="text-base focus:border-primary focus:ring-primary/20 h-[56px] w-full rounded-xl border border-gray-200 bg-white px-4 text-black shadow-sm transition-all placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:shadow-md"
                         />
                     </div>
 
@@ -99,19 +99,21 @@ export default function AdminSignupPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="비밀번호를 입력해주세요"
-                            className="text-body4 focus:border-primary focus:ring-primary h-[56px] w-full rounded-xl border border-[#dbdcde] px-4 text-black placeholder:text-gray-300 focus:ring-1 focus:outline-none"
+                            className="text-base focus:border-primary focus:ring-primary/20 h-[56px] w-full rounded-xl border border-gray-200 bg-white px-4 text-black shadow-sm transition-all placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:shadow-md"
                         />
                     </div>
                 </div>
             </div>
 
             {/* 하단 버튼 */}
-            <div className="px-6 pb-8">
+            <div className="px-6 pb-6 safe-area-bottom bg-white">
                 {error && (
-                    <p className="text-error mb-4 text-center text-sm">{error}</p>
+                    <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+                        <p className="text-error text-center text-sm">{error}</p>
+                    </div>
                 )}
                 <Button
-                    className="h-[52px] w-full"
+                    className="h-[56px] w-full text-base shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                     isActive={isFormValid && !isLoading}
                     onClick={handleSignup}
                 >

@@ -79,34 +79,34 @@ export default function RecommendationPage() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-white pt-8">
+        <div className="flex min-h-screen flex-col bg-white">
             {/* 단계 인디케이터 (3/3) */}
-            <div className="flex items-center justify-center gap-3 py-3">
-                <div className="bg-primary h-2 w-2 rounded-full" />
-                <div className="bg-primary h-2 w-2 rounded-full" />
-                <div className="bg-primary h-2 w-2 rounded-full" />
+            <div className="flex items-center justify-center gap-3 border-b border-gray-100 py-4 px-4 bg-white">
+                <div className="bg-primary h-2.5 w-2.5 rounded-full shadow-sm" />
+                <div className="bg-primary h-2.5 w-2.5 rounded-full shadow-sm" />
+                <div className="bg-primary h-2.5 w-2.5 rounded-full shadow-sm" />
             </div>
 
             {/* 메인 컨텐츠 */}
-            <div className="flex flex-1 flex-col px-6 pt-10">
+            <div className="flex flex-1 flex-col px-4 pt-8 pb-6">
                 {/* 제목 */}
                 <div className="mb-8">
-                    <div className="mb-1 flex items-baseline gap-1">
-                        <span className="text-primary text-2xl font-normal">
+                    <div className="mb-2 flex flex-wrap items-baseline gap-1">
+                        <span className="text-primary text-xl font-semibold">
                             {emotion}
                         </span>
-                        <span className="text-[18px] leading-[25px] font-semibold text-black">
+                        <span className="text-base font-semibold text-black">
                             의 감정일때는
                         </span>
                     </div>
-                    <h1 className="text-[18px] leading-[25px] font-semibold text-black">
+                    <h1 className="text-base font-semibold text-black leading-tight">
                         이런 활동을 해보시는건 어떠세요?
                     </h1>
                 </div>
 
                 {/* 활동 카드 캐러셀 */}
                 <div
-                    className="relative flex flex-1 items-center justify-center"
+                    className="relative flex flex-1 items-center justify-center pb-20"
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
@@ -114,15 +114,15 @@ export default function RecommendationPage() {
                     {/* 이전 버튼 */}
                     <button
                         onClick={handlePrev}
-                        className="bg-primary/80 absolute left-0 z-10 flex h-8 w-8 items-center justify-center rounded-2xl"
+                        className="bg-primary/90 absolute left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all hover:bg-primary hover:scale-110 active:scale-95"
                     >
-                        <ChevronLeft className="text-white" />
+                        <ChevronLeft className="h-5 w-5 text-white" />
                     </button>
 
                     {/* 활동 카드 */}
-                    <div className="relative mx-12 w-full max-w-[240px]">
+                    <div className="relative mx-10 w-full max-w-[280px]">
                         {/* 이미지 카드 */}
-                        <div className="relative h-[405px] w-full overflow-hidden rounded-lg">
+                        <div className="relative h-[320px] w-full overflow-hidden rounded-2xl shadow-xl sm:h-[405px]">
                             {/* 활동 이미지 */}
                             <Image
                                 src={activities[currentIndex].image}
@@ -135,10 +135,10 @@ export default function RecommendationPage() {
                         {/* 활동 버튼 */}
                         <button
                             onClick={handleActivitySelect}
-                            className="absolute -bottom-12 left-1/2 flex h-[100px] w-[100px] -translate-x-1/2 items-center justify-center rounded-full"
+                            className="absolute -bottom-14 left-1/2 flex h-[90px] w-[90px] -translate-x-1/2 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
                         >
-                            <div className="bg-primary/40 absolute inset-0 rounded-full blur-sm" />
-                            <span className="text-primary relative z-10 text-2xl font-semibold">
+                            <div className="bg-primary/40 absolute inset-0 rounded-full blur-[100px]" />
+                            <span className="text-primary relative z-10 text-xl font-semibold">
                                 {activities[currentIndex].title}
                             </span>
                         </button>
@@ -147,9 +147,9 @@ export default function RecommendationPage() {
                     {/* 다음 버튼 */}
                     <button
                         onClick={handleNext}
-                        className="bg-primary/80 absolute right-0 z-10 flex h-8 w-8 items-center justify-center rounded-2xl"
+                        className="bg-primary/90 absolute right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all hover:bg-primary hover:scale-110 active:scale-95"
                     >
-                        <ChevronRight className="text-white" />
+                        <ChevronRight className="h-5 w-5 text-white" />
                     </button>
                 </div>
             </div>

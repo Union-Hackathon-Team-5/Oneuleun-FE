@@ -60,7 +60,7 @@ export class AuthService {
             gender: gender,
         };
 
-        return apiClient.post<UserRegisterResponse>("/auth/register", payload);
+        return apiClient.post<UserRegisterResponse>("/auth/register", payload, undefined, true);
     }
 
     /**

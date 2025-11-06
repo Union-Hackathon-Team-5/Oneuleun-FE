@@ -10,7 +10,8 @@ interface PushNotificationHook {
     sendServerPush: (
         title: string,
         body: string,
-        url?: string
+        url?: string,
+        userName?: string
     ) => Promise<void>;
     isSubscribed: boolean;
 }
@@ -139,7 +140,8 @@ export function usePushNotification(): PushNotificationHook {
     const sendServerPush = async (
         title: string,
         body: string,
-        url?: string
+        url?: string,
+        userName?: string
     ) => {
         if (!isSubscribed) {
             alert("먼저 알림을 구독해주세요!");
@@ -167,6 +169,7 @@ export function usePushNotification(): PushNotificationHook {
                     title,
                     body,
                     url: url || "/",
+                    userName: userName || null,
                 }),
             });
 

@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { LogRequestData, LogResponse } from "@/app/types/api";
+import type { LogRequestData, LogResponse, SeniorLogResponse, EmotionCountResponse, Period } from "@/app/types/api";
 
 export class LogService {
     /**
@@ -22,7 +22,38 @@ export class LogService {
             formData.append("file", file, file instanceof File ? file.name : `log-${Date.now()}.mp4`);
         }
 
-        return apiClient.postFormData<LogResponse>("/log", formData);
+        // 인증 토큰이 필요하므로 useAuth: true 전달
+        return apiClient.postFormData<LogResponse>("/log", formData, undefined, true);
+    }
+
+    /**
+     * 노인 기록 조회
+     * @param seniorId 노인 ID
+     * @returns 노인 기록 데이터
+     */
+    async getSeniorLog(seniorId: number): Promise<SeniorLogResponse> {
+        return apiClient.get<SeniorLogResponse>(`/log/${seniorId}`, undefined, true);
+    }
+
+    /**
+     * 노인 감정 카운트 조회
+     * @param seniorId 노인 ID
+     * @param periods 기간 필터 (WEEK, MONTH, YEAR) - 선택적
+     * @returns 감정별 카운트 배열 [기쁨, 분노, 슬픔, 외로움, 무기력함, 행복]
+     */
+    async getEmotionCount(
+        seniorId: number,
+        periods?: Period[]
+    ): Promise<EmotionCountResponse> {
+        let endpoint = `/log/emotion/${seniorId}`;
+        
+        // period 쿼리 파라미터 추가
+        if (periods && periods.length > 0) {
+            const periodParams = periods.map((p) => `period=${p}`).join("&");
+            endpoint += `?${periodParams}`;
+        }
+        
+        return apiClient.get<EmotionCountResponse>(endpoint, undefined, true);
     }
 }
 

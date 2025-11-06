@@ -15,7 +15,7 @@ webpush.setVapidDetails(
 
 export async function POST(request: NextRequest) {
     try {
-        const { subscription, title, body, url } = await request.json();
+        const { subscription, title, body, url, userName } = await request.json();
 
         if (!subscription) {
             return NextResponse.json(
@@ -28,13 +28,14 @@ export async function POST(request: NextRequest) {
             title: title || "오늘은?",
             body: body || "새로운 알림이 도착했습니다",
             url: url || "/",
+            userName: userName || null, // userName 전달
             icon: "/icon.svg",
             badge: "/icon.svg",
         });
 
         await webpush.sendNotification(subscription, payload);
 
-        console.log("푸시 알림 전송 완료:", { title, body });
+        console.log("푸시 알림 전송 완료:", { title, body, userName });
 
         return NextResponse.json({
             success: true,

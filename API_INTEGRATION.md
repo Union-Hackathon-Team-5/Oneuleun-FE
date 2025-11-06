@@ -10,7 +10,8 @@ app/
 │       ├── client.ts         # API 클라이언트
 │       ├── recording.ts      # 녹화 API 서비스
 │       ├── auth.ts           # 인증 API 서비스
-│       └── log.ts            # 로그 API 서비스
+│       ├── log.ts            # 로그 API 서비스
+│       └── analyze.ts        # 분석 API 서비스
 ├── types/
 │   └── api.ts               # API 타입 정의
 └── hooks/
@@ -289,19 +290,81 @@ function MyComponent() {
 {}
 ```
 
+### POST /analyze/upload
+
+영상 촬영 완료 후 AI 분석 요청 (AI 서버)
+
+**요청:**
+- Content-Type: `multipart/form-data`
+- Body:
+  - `session_id` * (string): 세션 ID
+  - `user_id` * (string): 사용자 ID
+  - `conversation` * (string): AI 질문과 노인 응답이 포함된 대화 내용
+  - `audio_file` * (binary): 오디오 파일
+
+**응답:**
+```json
+{
+    "success": true,
+    "session_id": "string",
+    "user_id": "string",
+    "recorded_at": "string",
+    "status_overview": {
+        "alert_level": "urgent",
+        "alert_badge": "string",
+        "alert_title": "string",
+        "alert_subtitle": "string",
+        "status_color": "string"
+    },
+    "today_summary": {
+        "headline": "string",
+        "mood_score": 0,
+        "mood_label": "string",
+        "mood_emoji": "string",
+        "energy_score": 0,
+        "pain_score": 0,
+        "mother_voice": ["string"]
+    },
+    "key_concerns": [
+        {
+            "concern_id": 0,
+            "type": "건강",
+            "icon": "string",
+            "severity": "urgent",
+            "title": "string",
+            "description": "string",
+            "detected_from": ["string"],
+            "urgency_reason": "string"
+        }
+    ],
+    "action_plan": {
+        "urgent_actions": [...],
+        "this_week_actions": [...],
+        "long_term_actions": [...]
+    },
+    "detailed_analysis": {...},
+    "trend_analysis": {...},
+    "ui_components": {...}
+}
+```
+
+**참고:** 이 API는 AI 서버(`NEXT_PUBLIC_AI_SERVER_URL`)로 요청됩니다.
+
 ## 🎯 실제 사용 예시
 
-### 녹화 페이지에서 이미지 업로드
+### 녹화 페이지에서 이미지 업로드 및 분석
 
 녹화 페이지 (`app/user/record/page.tsx`)에서 API가 어떻게 사용되는지 확인할 수 있습니다:
 
 ```typescript
 import { recordingService } from "@/app/lib/api/recording";
+import { analyzeService } from "@/app/lib/api/analyze";
 import { useAuth } from "@/app/hooks/useAuth";
 
 export default function UserRecordPage() {
     const { user } = useAuth();
 
+    // 스냅샷 이미지 업로드
     const uploadToServer = async (blob: Blob) => {
         const sessionId = recordingService.generateSessionId();
         const userId = user?.id || `temp-user-${Date.now()}`;
@@ -313,6 +376,26 @@ export default function UserRecordPage() {
         );
 
         console.log("업로드 성공:", result);
+    };
+
+    // 영상 분석 업로드
+    const uploadAnalysisToServer = async (audioBlob: Blob, sessionId: string) => {
+        const userId = user?.id || `temp-user-${Date.now()}`;
+        
+        // 대화 내용 (STT 결과로 대체 필요)
+        const conversation = "AI: 오늘 하루는 어떠셨나요?\n사용자: [음성 인식 결과]";
+
+        const result = await analyzeService.uploadAnalysis(
+            sessionId,
+            userId,
+            conversation,
+            audioBlob
+        );
+
+        console.log("분석 결과:", result);
+        
+        // 분석 결과 저장
+        localStorage.setItem(`analysis_${sessionId}`, JSON.stringify(result));
     };
 }
 ```
@@ -529,8 +612,9 @@ export const emotionService = new EmotionService();
 ## 📝 참고사항
 
 - API 요청은 두 개의 서버 URL을 사용합니다:
-  - **AI 서버** (`NEXT_PUBLIC_AI_SERVER_URL`): 녹화/이미지 업로드용
+  - **AI 서버** (`NEXT_PUBLIC_AI_SERVER_URL`): 녹화/이미지 업로드 및 분석용
     - `POST /context/upload` - 녹화 컨텍스트 업로드
+    - `POST /analyze/upload` - 영상 촬영 완료 후 AI 분석 요청
   - **메인 서버** (`NEXT_PUBLIC_SERVER_URL`): 인증 및 기타 API용
     - `POST /auth/signup` - 보호자 회원가입
     - `POST /auth/login` - 보호자 로그인

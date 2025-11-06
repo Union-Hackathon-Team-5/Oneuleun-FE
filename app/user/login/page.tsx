@@ -90,10 +90,10 @@ export default function UserLoginPage() {
     return (
         <div className="flex min-h-screen flex-col bg-white">
             {/* 헤더 */}
-            <div className="flex h-[32px] items-center py-10">
+            <div className="flex h-[56px] items-center border-b border-gray-100 px-4 pt-2 bg-white">
                 <button
                     onClick={() => router.back()}
-                    className="flex h-8 w-8 items-center justify-center"
+                    className="flex h-10 w-10 items-center justify-center -ml-2 rounded-lg transition-colors hover:bg-gray-50 active:bg-gray-100"
                     aria-label="뒤로가기"
                 >
                     <svg
@@ -115,20 +115,20 @@ export default function UserLoginPage() {
             </div>
 
             {/* 메인 콘텐츠 */}
-            <div className="flex-1 pt-6">
-                <h1 className="text-body1 mb-12 text-black">
+            <div className="flex-1 px-6 pt-8">
+                <h1 className="text-lg font-semibold mb-10 text-black leading-tight">
                     사용자 등록 코드를 입력해주세요
                 </h1>
 
                 {/* 에러 메시지 */}
                 {error && (
-                    <div className="text-body5 mb-4 rounded-lg bg-red-100 p-3 text-red-700">
-                        ⚠️ {error}
+                    <div className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 shadow-sm">
+                        <p className="text-sm text-red-700">⚠️ {error}</p>
                     </div>
                 )}
 
                 {/* 코드 입력 박스 */}
-                <div className="flex justify-between px-4">
+                <div className="flex justify-between gap-3 px-2">
                     {code.map((digit, index) => (
                         <input
                             key={index}
@@ -143,16 +143,16 @@ export default function UserLoginPage() {
                                 handleInputChange(index, e.target.value)
                             }
                             onKeyDown={(e) => handleKeyDown(index, e)}
-                            className="text-primary focus:ring-primary h-[54px] w-[42px] rounded-lg bg-[#ebebec] text-center text-2xl font-semibold outline-none focus:bg-gray-200 focus:ring-2"
+                            className="text-primary focus:ring-primary/20 h-[56px] flex-1 rounded-xl bg-gray-50 border border-gray-200 text-center text-2xl font-semibold shadow-sm transition-all outline-none focus:bg-white focus:border-primary focus:ring-2 focus:shadow-md"
                         />
                     ))}
                 </div>
             </div>
 
             {/* 하단 버튼 */}
-            <div className="pb-8">
+            <div className="px-6 pb-6 safe-area-bottom bg-white">
                 <Button
-                    className="h-[52px] w-full"
+                    className="h-[56px] w-full text-base shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                     isActive={isCodeComplete && !isLoading}
                     onClick={handleSubmit}
                 >

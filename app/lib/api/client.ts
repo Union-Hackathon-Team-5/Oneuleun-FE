@@ -57,7 +57,18 @@ export class ApiClient {
         } catch (error) {
             console.error(`[API] Request failed:`, error);
             if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                throw new Error(`서버에 연결할 수 없습니다. 서버 URL을 확인해주세요: ${url}`);
+                const errorMessage = `서버에 연결할 수 없습니다.\n\n` +
+                    `URL: ${url}\n\n` +
+                    `가능한 원인:\n` +
+                    `1. 백엔드 서버가 실행되지 않았습니다\n` +
+                    `2. Cloudflare tunnel URL이 만료되었습니다\n` +
+                    `3. 환경 변수 설정이 잘못되었습니다\n\n` +
+                    `해결 방법:\n` +
+                    `1. .env.local 파일에서 NEXT_PUBLIC_SERVER_URL 확인\n` +
+                    `2. 백엔드 서버가 실행 중인지 확인\n` +
+                    `3. 로컬 서버 사용 시: http://localhost:8000\n` +
+                    `4. 개발 서버 재시작: npm run dev`;
+                throw new Error(errorMessage);
             }
             throw error;
         }
