@@ -74,6 +74,15 @@ export interface Senior {
 export type CaregiverSeniorsResponse = Senior[];
 
 // Log API
+export enum EmotionType {
+    분노 = "분노",
+    슬픔 = "슬픔",
+    행복 = "행복",
+    무기력함 = "무기력함",
+    기쁨 = "기쁨",
+    외로움 = "외로움",
+}
+
 export interface LogRequestData {
     user_id: number;
     session_id: string;
@@ -83,7 +92,7 @@ export interface LogRequestData {
     summary: string;
     key_phrases: string[];
     care_todo: string[];
-    emotion_type: string;
+    emotion_type: EmotionType;
     today: string;
     this_week: string;
     this_month: string;

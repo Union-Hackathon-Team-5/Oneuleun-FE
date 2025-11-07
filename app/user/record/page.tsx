@@ -9,6 +9,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { useTTS } from "@/app/hooks/useTTS";
 import { useSTT } from "@/app/hooks/useSTT";
 import type { AnalyzeUploadResponse } from "@/app/types/api";
+import { EmotionType } from "@/app/types/api";
 
 interface ConversationEntry {
     question: string;
@@ -380,33 +381,43 @@ export default function UserRecordPage() {
     };
 
     // /log API 호출 (녹화 영상 파일 + 분석 결과)
+    // 감정 문자열을 EmotionType enum으로 변환
+    const mapEmotionToEnum = (emotion: string | undefined): EmotionType => {
+        if (!emotion) return EmotionType.기쁨; // 기본값
+        
+        // 감정 문자열을 enum 값으로 매핑
+        const emotionMap: Record<string, EmotionType> = {
+            "분노": EmotionType.분노,
+            "슬픔": EmotionType.슬픔,
+            "행복": EmotionType.행복,
+            "무기력함": EmotionType.무기력함,
+            "기쁨": EmotionType.기쁨,
+            "외로움": EmotionType.외로움,
+        };
+        
+        return emotionMap[emotion] || EmotionType.기쁨; // 기본값
+    };
+
     const uploadLogToServer = async (
         videoBlob: Blob,
         sessionId: string,
         analysisResult: AnalyzeUploadResponse
     ) => {
         try {
-            const userIdStr = user?.id;
-            if (!userIdStr) {
-                throw new Error("사용자 ID가 없습니다.");
-            }
-
-            // user.id가 string이므로 number로 변환
-            const userId = parseInt(userIdStr, 10);
-            if (isNaN(userId)) {
-                throw new Error("유효하지 않은 사용자 ID입니다.");
-            }
-
             // 분석 결과에서 필요한 데이터 추출
             const statusSignal = analysisResult?.status_signal;
             const keyPhrases = analysisResult?.key_phrases || [];
             const careTodo = analysisResult?.care_todo || [];
             const aiCarePlan = analysisResult?.ai_care_plan;
 
+            // emotion_type을 enum 값으로 변환
+            const emotionType = mapEmotionToEnum(statusSignal?.emotion);
+
             // /log API 호출 (영상 파일 + 분석 결과 데이터)
+            // user_id는 무조건 1로 고정
             await logService.createLog(
                 {
-                    user_id: userId,
+                    user_id: 1,
                     session_id: sessionId,
                     health: statusSignal?.health || "",
                     emotion: statusSignal?.emotion || "",
@@ -414,7 +425,7 @@ export default function UserRecordPage() {
                     summary: statusSignal?.summary || "",
                     key_phrases: keyPhrases,
                     care_todo: careTodo,
-                    emotion_type: statusSignal?.emotion || "",
+                    emotion_type: emotionType,
                     today: aiCarePlan?.today || "",
                     this_week: aiCarePlan?.this_week || "",
                     this_month: aiCarePlan?.this_month || "",

@@ -33,62 +33,16 @@ export default function NotificationDetailPage() {
             return;
         }
 
-        // 먼저 로컬 스토리지에서 알림 정보 확인
-        const loadNotification = () => {
+        // URL의 id를 senior-id로 사용하여 직접 로그 조회
+        // 예: /admin/notifications/1 -> GET /log/1
+        const fetchSeniorLog = async (seniorId: number) => {
             try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    const notifications: Notification[] = JSON.parse(stored);
-                    const found = notifications.find((n) => n.id === notificationId);
-                    if (found) {
-                        // 알림이 있으면 기존 로직 사용
-                        setNotification(found);
-                        findSeniorId(found.userName);
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.error("알림 불러오기 실패:", error);
-            }
-
-            // 알림이 없으면 notificationId를 senior-id로 사용하여 로그 직접 가져오기
-            // (편지보러 가기 버튼에서 로그 ID를 전달한 경우)
-            fetchSeniorLogDirectly(notificationId);
-        };
-
-        const findSeniorId = async (userName: string) => {
-            try {
-                const seniors = await authService.getCaregiverSeniors();
-                const senior = seniors.find((s) => s.name === userName);
-                if (senior) {
-                    setSeniorId(senior.id);
-                    // 노인 기록 불러오기
-                    fetchSeniorLog(senior.id);
-                } else {
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                console.error("노인 정보 조회 실패:", error);
-                setIsLoading(false);
-            }
-        };
-
-        const fetchSeniorLog = async (id: number) => {
-            try {
-                const log = await logService.getSeniorLog(id);
-                setSeniorLog(log);
-            } catch (error) {
-                console.error("노인 기록 조회 실패:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        const fetchSeniorLogDirectly = async (seniorId: number) => {
-            try {
+                console.log(`[NotificationDetail] senior-id ${seniorId}로 로그 조회 시작`);
                 const log = await logService.getSeniorLog(seniorId);
+                console.log(`[NotificationDetail] 로그 조회 성공:`, log);
                 setSeniorLog(log);
-                // 로그에서 노인 이름 가져오기 (선택된 노인 정보에서)
+                
+                // 노인 정보 가져오기
                 const seniors = await authService.getCaregiverSeniors();
                 const senior = seniors.find((s) => s.id === seniorId);
                 if (senior) {
@@ -102,6 +56,16 @@ export default function NotificationDetailPage() {
                         isRead: false,
                         timestamp: log.date ? new Date(log.date).getTime() : Date.now(),
                     });
+                } else {
+                    // 노인 정보를 찾지 못한 경우에도 기본 알림 정보 생성
+                    setNotification({
+                        id: log.id || seniorId,
+                        userName: "사용자",
+                        title: "영상 편지",
+                        description: log.status_signal?.summary || "영상 편지가 도착했어요",
+                        isRead: false,
+                        timestamp: log.date ? new Date(log.date).getTime() : Date.now(),
+                    });
                 }
             } catch (error) {
                 console.error("노인 기록 조회 실패:", error);
@@ -111,7 +75,8 @@ export default function NotificationDetailPage() {
             }
         };
 
-        loadNotification();
+        // notificationId를 senior-id로 사용하여 로그 조회
+        fetchSeniorLog(notificationId);
     }, [notificationId, router]);
 
     // 날짜 포맷팅
@@ -160,14 +125,17 @@ export default function NotificationDetailPage() {
 
     return (
         <div className="flex min-h-screen flex-col bg-white">
-            {/* 비디오 썸네일 */}
-            <div className="relative h-[296px] w-full overflow-hidden bg-gray-200">
+            {/* 영상 편지 재생 */}
+            <div className="relative h-[296px] w-full overflow-hidden bg-black">
                 {seniorLog?.file_url ? (
-                    <img
+                    <video
                         src={seniorLog.file_url}
-                        alt="영상 썸네일"
-                        className="h-full w-full object-cover"
-                    />
+                        controls
+                        className="h-full w-full object-contain"
+                        preload="metadata"
+                    >
+                        브라우저가 비디오 태그를 지원하지 않습니다.
+                    </video>
                 ) : (
                     <div className="flex h-full items-center justify-center">
                         <p className="text-gray-400">영상 없음</p>

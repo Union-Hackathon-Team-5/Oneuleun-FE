@@ -56,7 +56,29 @@ export class ApiClient {
                 throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
             }
 
-            return response.json();
+            // 응답 본문이 비어있는지 확인
+            const contentType = response.headers.get("content-type");
+            const text = await response.text();
+            
+            // 빈 응답인 경우 빈 객체 반환
+            if (!text || text.trim().length === 0) {
+                console.warn(`[API] 빈 응답 받음: ${url}`);
+                return {} as T;
+            }
+
+            // JSON이 아닌 경우 처리
+            if (!contentType || !contentType.includes("application/json")) {
+                console.warn(`[API] JSON이 아닌 응답: ${contentType}, 본문: ${text.substring(0, 100)}`);
+                // JSON이 아니어도 파싱 시도 (일부 서버가 Content-Type을 잘못 설정할 수 있음)
+            }
+
+            try {
+                return JSON.parse(text) as T;
+            } catch (parseError) {
+                console.error(`[API] JSON 파싱 실패:`, parseError);
+                console.error(`[API] 응답 본문:`, text);
+                throw new Error(`JSON 파싱 실패: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+            }
         } catch (error) {
             console.error(`[API] Request failed:`, error);
             if (error instanceof TypeError && error.message === 'Failed to fetch') {
